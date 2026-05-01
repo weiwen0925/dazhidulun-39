@@ -1496,37 +1496,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script><script id="wy-decoder">
-(function(){
-  var KEY = 0x5A;
-  function _decode(b64){
-    try{
-      var bin = atob(b64);
-      var u8 = new Uint8Array(bin.length);
-      for(var i=0;i<bin.length;i++) u8[i] = bin.charCodeAt(i)^KEY;
-      return new TextDecoder('utf-8').decode(u8);
-    }catch(e){return '';}
-  }
-  function _run(){
-    var nodes = document.querySelectorAll('[data-c]');
-    for(var i=0;i<nodes.length;i++){
-      var el = nodes[i];
-      var enc = el.getAttribute('data-c');
-      if(!enc) continue;
-      var txt = _decode(enc);
-      if(txt) el.textContent = txt;
-      el.removeAttribute('data-c');
-    }
-  }
-  if(window.__wyReady){
-    window.__wyReady.then(_run);
-  } else {
-    document.addEventListener('DOMContentLoaded', _run);
-  }
-})();
-</script>
-
-</body></html>"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="stH/stXzsszzv+3ostnnsuzfsuzQvuLTvML9tebWs9j5s+DmvuLRvuLav9rRv8/Vs/vWst3wvd7svO/0vdXktebAv8bystXzvNXKs9vJsu31vcDesufTvNfzs+HEvuLQtebWvuHMv/zYvufPvNPlvMnOudrUvOnPv+XXudrVstLdudrUvuLXs9rasufTudrVvcDes8HDs93Xv+bvv9DBtebFvfb2vuDWv8nbv+rdvuH/suT1svfTvNPRvOnPv9Ldv9//stL2stH/vcDest3yvc/WudrY">​</p>
@@ -25322,5 +25292,71 @@ document.addEventListener('click',function(e){
 // === 持續輪詢 ===
 var _rt=0,_riv=setInterval(function(){_rt++;resizeAllFrames();if(_rt>50) clearInterval(_riv);},300);
 </script>
+<script id="wy-decoder">
+(function(){
+  var KEY = 0x5A;
+  var _done = false;
+  function _decode(b64){
+    try{
+      // base64 可能有 URL-safe 變體；先還原
+      b64 = String(b64).replace(/-/g,'+').replace(/_/g,'/');
+      var bin = atob(b64);
+      var len = bin.length;
+      var u8 = new Uint8Array(len);
+      for(var i=0;i<len;i++) u8[i] = bin.charCodeAt(i)^KEY;
+      // 優先用 TextDecoder；fallback 到 decodeURIComponent(escape(...))
+      if(typeof TextDecoder!=='undefined'){
+        return new TextDecoder('utf-8').decode(u8);
+      } else {
+        var s='';
+        for(var j=0;j<len;j++) s+=String.fromCharCode(u8[j]);
+        return decodeURIComponent(escape(s));
+      }
+    }catch(e){
+      try{console.warn('[wy-decoder] decode fail:', e, b64.slice(0,20));}catch(_){}
+      return null;
+    }
+  }
+  function _run(){
+    if(_done) return;
+    var nodes = document.querySelectorAll('[data-c]');
+    if(!nodes.length){
+      // 可能 DOM 還沒 ready，再等等
+      return;
+    }
+    var n_ok=0, n_fail=0;
+    for(var i=0;i<nodes.length;i++){
+      var el = nodes[i];
+      var enc = el.getAttribute('data-c');
+      if(!enc) continue;
+      var txt = _decode(enc);
+      if(txt!==null && txt!==''){
+        el.textContent = txt;
+        n_ok++;
+      } else {
+        n_fail++;
+      }
+      el.removeAttribute('data-c');
+    }
+    if(n_ok>0) _done=true;
+    try{console.log('[wy-decoder] decoded', n_ok, 'fail', n_fail);}catch(_){}
+  }
+  // 多重啟動點：確保不論時序如何都能跑到
+  function _kick(){
+    _run();
+    if(!_done) setTimeout(_run, 50);
+    if(!_done) setTimeout(_run, 200);
+    if(!_done) setTimeout(_run, 800);
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', _kick);
+  } else {
+    _kick();
+  }
+  // 也在 window load 補一次
+  window.addEventListener('load', _run);
+})();
+</script>
+
 </body>
 </html>
