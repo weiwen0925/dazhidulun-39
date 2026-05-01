@@ -5,9 +5,11 @@
 <meta name="robots" content="noai, noimageai, noarchive, nosnippet">
 <meta name="googlebot" content="noai, noimageai">
 <meta name="bingbot" content="noai, noimageai">
-<style id="wy-preguard">html,body{visibility:hidden!important;background:#000!important;}
+<style id="wy-noselect">
 @media print{html,body,body *{visibility:hidden!important;display:none!important;}}
+@page{size:auto;margin:0;}
 *::selection{background:transparent!important;color:inherit!important;}
+*::-moz-selection{background:transparent!important;color:inherit!important;}
 *{-webkit-user-select:none!important;-moz-user-select:none!important;-ms-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-user-drag:none!important;}
 </style>
 <script id="wy-protection-head">
@@ -40,60 +42,40 @@
     if((e.metaKey||e.ctrlKey)&&e.shiftKey&&['i','j','c','k'].indexOf(k)>=0){e.preventDefault();return false;}
   },true);
 
-  // ===== L4 + L6: Origin Lock + 線上活性 HEAD 驗證 =====
+  // ===== L4: Origin Lock 同步檢查 =====
   var ALLOWED_HOST = "weiwen0925.github.io";
   var ALLOWED_PATH = "/dazhidulun-39/";
-
-  // 同步 origin 檢查
   var hostOK = (location.hostname===ALLOWED_HOST);
   var pathOK = (location.pathname.indexOf(ALLOWED_PATH)===0);
-
   if(!hostOK||!pathOK){
     _silentLockdown();
     return;
   }
 
-  // __wyReady promise: 解碼器等待此 resolve 才執行
-  window.__wyOriginOK = false;
-  window.__wyReady = new Promise(function(resolve, reject){
-    window.__wyReadyResolve = resolve;
-    window.__wyReadyReject  = reject;
-  });
+  // L4 通過 → 立即 resolve __wyReady，讓解碼器啟動
+  window.__wyOriginOK = true;
+  window.__wyReady = Promise.resolve();
 
-  // 非同步 HEAD ping（L6 線上活性）
+  // ===== L6: 線上活性 HEAD ping（背景驗證，非阻塞）=====
+  // 失敗才 lockdown；不阻塞 L1/L5 解碼
   function _pingFreshness(){
     var ts = Date.now()+'.'+Math.random().toString(36).slice(2,8);
     var url = location.protocol+'//'+ALLOWED_HOST+ALLOWED_PATH+'?_wyping='+ts;
     var ctrl = (typeof AbortController!=='undefined') ? new AbortController() : null;
-    var timer = setTimeout(function(){if(ctrl) ctrl.abort();},6000);
-    return fetch(url,{method:'HEAD',cache:'no-store',signal:ctrl?ctrl.signal:undefined,credentials:'omit'})
+    var timer = setTimeout(function(){if(ctrl) ctrl.abort();},10000);
+    return fetch(url,{method:'GET',cache:'no-store',signal:ctrl?ctrl.signal:undefined,credentials:'omit'})
       .then(function(r){
         clearTimeout(timer);
-        if(!r.ok && r.status!==0) throw new Error('ping_fail');
+        if(!r.ok && r.status!==0 && r.status!==304) throw new Error('ping_fail');
         return true;
       });
   }
-  _pingFreshness().then(function(){
-    window.__wyOriginOK = true;
-    var pg = document.getElementById('wy-preguard');
-    if(pg) pg.parentNode.removeChild(pg);
-    document.documentElement.style.visibility='';
-    if(document.body){document.body.style.visibility='';document.body.style.background='';}
-    if(window.__wyReadyResolve) window.__wyReadyResolve();
-  }).catch(function(){
-    _silentLockdown();
-    if(window.__wyReadyReject) window.__wyReadyReject(new Error('offline'));
-  });
-
-  // ===== 關閉開發者工具偵測（軟性，靜默處理）=====
-  var _devCheck = setInterval(function(){
-    var d = window.outerWidth - window.innerWidth;
-    var dh = window.outerHeight - window.innerHeight;
-    if(d>200 || dh>250){
-      // DevTools 開啟可能性高 — 靜默清空
-      // 注意：寬度差也可能因 zoom，故閾值較大
-    }
-  },1500);
+  // 延後 800ms 才 ping，避免與初次載入競爭頻寬
+  setTimeout(function(){
+    _pingFreshness().catch(function(){
+      _silentLockdown();
+    });
+  }, 800);
 })();
 </script>
 
@@ -1544,7 +1526,7 @@ h5{font-size:18.5px!important;}
 })();
 </script>
 
-</body></html>" loading="lazy"></iframe>
+</body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="stH/stXzsszzv+3ostnnsuzfsuzQvuLTvML9tebWs9j5s+DmvuLRvuLav9rRv8/Vs/vWst3wvd7svO/0vdXktebAv8bystXzvNXKs9vJsu31vcDesufTvNfzs+HEvuLQtebWvuHMv/zYvufPvNPlvMnOudrUvOnPv+XXudrVstLdudrUvuLXs9rasufTudrVvcDes8HDs93Xv+bvv9DBtebFvfb2vuDWv8nbv+rdvuH/suT1svfTvNPRvOnPv9Ldv9//stL2stH/vcDest3yvc/WudrY">​</p>
@@ -2540,7 +2522,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="stL2stH/svvWvcDesuT1svfTvM34v+3ovfHRvfPztebWvNT/vuLRvuTcv+Xfs/rSssPPvcrcvuLav9rRv9/ts/HOv/ruv8XFv8/Vs/vWtebAv8byv9fbvMzjsvHivufBvd77s93Vs/vCv9DBvuD+vePOvcDevMPYvfPgvuL3tebWstXzsszzvfPsvfHFvuH/vufPsuDxv+Tavc7FvufPv9PUtebFvfb2vuLTv8nbstvAvd78udrUsun4v9DxstXzsszzv9/GvdTdvO3yv8bFsvvWudrVudrY">​</p>
@@ -3572,7 +3554,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="vM34v+3os93KvOLfv9/GvdTdv+Tavc7FvcDes/vCv9DBvf3zv+DVtebWvuLRvuLav8nbst3wvd7ssvzbsuXnv8/VtebAvc/sudrUvuLavc7FsvnGssPPudrVvcDestXzsszzvc7FvMzmvuDgs8zJtebWvuHMvML1udrUvc7Fv/7zv9XNv/rrudrVs9jevML1udrUvf7gvdXkvNLKs9vJudrVtebFvfb2v8HBv8nbvuH/suT1veTzvMzjv+bVs93KvOLfsvnGssPPstXzsszzvcDev/fCvMbTvdHavN/RudrY">​</p>
@@ -4497,7 +4479,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="vM34vd7ssvnGssPPstXzsszzvuPRudrUvc7FudrVvdjgvf7gvdXks8fEvP/3v/rrtebWs9j5s+DmvuX0svvWs8DUvufXvuL3udrUs9LXvPrjstrWs8HGsvvWudrVstrfv9XSsvPov/zYvufPvcrcsv35tebFvfb2vuDOv8nbsufTv9//vuX0svfTvPb7vfb2vcDevMPYs8zJvNr9v8/Vs/vWudrY">​</p>
@@ -5346,7 +5328,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="s9LXvPrjs8/tv9DxvuX0svvWtebWv+XfvOzTsvLasvDEstLdsvvWvdjgvuPRv9XMvNfyudrYvuLRvuLav8nbudrUvuLXsvDwvd77vcHQvuPRvuDRudrVv9fpv+TEsvDEsvLav+v+s8f4vNT/veDWv+vPs8zRuNrOuNrOstXzsszzvMzmvufPv/jZv+XfsvDwudrbvMzmvufPv/jZv+Xfs+HCtebF">​</p>
@@ -6320,7 +6302,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="svDwstLdvuLXsvDwvM34v+3os93KvOLftebWvuTlsvzbsuXnv8/VtebAstXzsszzvMzmudrUsvvWudrVvMzjs8f4v/zYvufPvejks9rotebFvfb2vuLZv8nbvuH/v9/3v+D8vejks9rovdjgvuLhsuHitebWsvHMsvfTv/zYvufPvMztvuLTvNn7s9vJvuPRvPrjudrY">​</p>
@@ -7159,7 +7141,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="v9/3v+D8vuPRs/zMvdjgudrUvPDatebSv+LZvMzntebTudrVtebBvuLRvuLav8nbv+rdv+LZvMznvOn4veTfssbGvdfyvfHRvO3rv9bMtebWv9PMvMTKstXzsszzv/zYvufPvuH/udrUvPDavMznudrVvM7Hv9XNvcbkvc7FudrY">​</p>
@@ -7926,7 +7908,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="v+LZvMznvM34vuH/vuLTsubws/HOvfPgvdjgv+XZvOnPtebWstXzsszzv/zYvufPv8byv9/3s9vJvuPRvuL3vuH/udrUvN/SvNjosvTQvdXkudrVv9bMv+D8vcbkvc7FtebFvfb2vuPHv8nbv+rdv+LZvMznv+HsvubivdjgvMHuv+H5v/79vcDev9bMv+D8v/fiudrY">​</p>
@@ -8947,7 +8929,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="v9/3s9vJv9bMv+D8vM34v+3ovNLKvfHRtebWvMHus/HCs8DUvcDev8/Vs/vWvML1tebAudrUvuLavc7FsvnGssPPudrVvcDestXzsszzv/zYvufPv8rWvMPYvufOvMnAv/7Av9rRvfPgs8zJvufXs+HEtebFvfb2v9fbv8nbv+bPv9//udrUvfPgs8zJvNHJvMjov/fiudrVudrY">​</p>
@@ -10240,7 +10222,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="vfPgs8zJvNHJvMjovuPRv/7MtebWstXzsszzvuD8vuH/udrUsuDxvcHiudrVvf7gvdXkudrYvfb2v9fbvuLav8nbsufTv9//udrUvOnPvNr9ss3Xv8bMstLds+HZs93Ls8f4v9/tudrVuNrOuNrOvuLTv9fbvuDWvcHivcDevuL3sv3asv35vP3RudrY">​</p>
@@ -11239,7 +11221,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="v/7MvcHivM34v+3osv35vP3RtebWv9/9v8byudrUsvHivPrjudrVvcDevOLfvO3yv9fpvNLKvdjgvuLRvuLav9rRvd78s+HEudrYvfb2v9fbvuDWv8nbsvLUsvHMsvHivPrjvO3ystrWvuLXst3ws/HCudrbvuLXvuLRvuHMvcDes8HDs93Xv8r8v/TAudrY">​</p>
@@ -12082,7 +12064,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="svHivPrjvOLfvO3yvuPRv9/9vOzvvM34vMLUtebWvuLRvuLav8nbv+TEudrUvNLIudrVstLdudrUvMznudrVv9/zveXms9rov9//suT1veTztebWs93XvMzqvPD4svzMv9/zvOn4veTfssbGvcDev97wv9/Sv+DVudrY">​</p>
@@ -12850,7 +12832,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="vNLIvMznsuT1veTzvM34vMLUtebWvfb2v9fbv8HBv8nbsufTv9//vMHuvO3rv+v+vcDeudrUs8Dyv9Dzv9Lqs93Lv9PBvNLIs/HOudrVtebWsvLUsvHMudrUv+LivuLXvNfyv9fbv8zesvvWudrVvPTvv/zYvufPs9vOst3uvNLIs/HOvcDes93Lv9PBvNr9udrY">​</p>
@@ -13182,7 +13164,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="vNLIs/HOvM34v+3os93Lv9PBv9bMtebWvuLRvuLav8nbsufTv9//sufTsubwstvMvdTRvPTvuNrOuNrOvPbQv9DBstLdve35su/tvcDevuL3sv3asv35vP3RudrY">​</p>
@@ -14276,7 +14258,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="sufTsubwstvMvdTRvPTvvM34v+3ov+vPs8zRtebWvuLRvuLav8nbv+Hsvubist3pudrUvPbQv9DBepjterLo+7/11nqY7Xq98+C82v252tW9wN6/0cey+9ay8cy42s642s68we696eG97+u/xuq/08y8xMq91NGy2t+/0cey+9a//Ni+58+/1vW/3/+98+C82v252tg=">​</p>
@@ -15182,7 +15164,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="v9HHsvvWvuPRv/7MtebWstL2stH/vuHXs/rSvuH/udrUvOnPvMznudrVvO/bs9rAtebBvfb2v9fbvuLZv8nbsufTv9//stL2stH/vOnPvMznstLdvuLTvP/3vOLfvO3yvcDesvHMs/vWudrY">​</p>
@@ -16064,7 +16046,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="vuLTvP/3vOLfvO3yvuPRsvHMvM34s8zRtebWvuLRvuLav8nbv+bPv9//udrUvfXev+bVsufTvf3hudrVuNrOuNrOstLXv9Lzv+bNv8/VstXzsszzvNLItebWv+TEvMbTvcHivuPRvNLIsuDXs9rov9Lqvd77vcHivuPRvNLIudrY">​</p>
@@ -17059,7 +17041,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="vd77vcHivuPRvNLIvM34vfHRtebWvfb2v9fbvuPHv8nbv+HgvP3RudrUvfPgvNr9stLdve35su/tvcDesuT1svfTvcXzs8P5udrVuNrOuNrOsuDxv9X5vN7VvefwvP/3v/zYvufPv8byvuL3sv3asuT1svfTvuL3svjxvOzSsv35udrY">​</p>
@@ -18360,7 +18342,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="suT1svfTvcXzs8P5vM34vMLUtebWvuLRvuLav8nbvO3rv9//udrUvuLTvP/3s+Dbve7qudrVuNrOuNrOv+rdvefwvP/3vcDev+v+vPb7sv35vP3RvdjgsvDXvcX/stLdvuX0svvWvcDes8DUvPj1udrY">​</p>
@@ -19154,7 +19136,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="vuLTvP/3s+Dbve7qvuPRvOLfvO3yvM34vMLUtebWvMbave/Yv+Xfs/rSvNDvs9vOudrUsvHivOnPvuLXv9X1v+TNudrVvuPRv/jZtebBvfb2vuDWv9fbvuLav8nbv+TEudrUvO3ysuDxv9X5vN7VudrVs9jbv8rLudrUvO3yvuLav9LdvOnPudrVudrY">​</p>
@@ -20105,7 +20087,7 @@ body{font-size:20px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="vuLXv9X1v+TNvuPRv+XZvM34vfPztebWvuTlstnnvfHRudrUvd77stnnv/nEudrVtebBvfb2vuDWv9fbvuDWv8nbv+rSsvHMstXzsszzs9vJvuPRs93Lv9PBvuLXv/nEudrY">​</p>
@@ -20551,7 +20533,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="vd77stnnv/nEvM34vdjgstXzsszzvuPRvMTGvcHitebWv9/sv8H6v9fpv8byudrUvuH/vMPgv+rUvfzVudrVtebBvfb2vuDWv9fbvuLTv8nbv+TEstL2stH/vMPgvN/9v+rUv+bPvfzVv+TtvcDevuL3sv3as9jVsub1v+vPs8zRudrY">​</p>
@@ -21650,7 +21632,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="vuH/vMPgv+rUvfzVvuPRs9jVsub1vM34vMLUtebWvuLRvuLav8nbvNX3vf7gudrUstL2stH/vd77v+TNstrWssr2vOnPv9/tsuzpudrVvcDesuT1svfTuNrOuNrOvd77v+TNssPPvPf5vML1ssr2vOnPvdXkv9PXssPPudrY">​</p>
@@ -22590,7 +22572,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="stL2stH/suT1svfTst3pvPf+v8bJvOHltebWv9/yv9ftvMbav+TWvuH/udrUvuDOvcbmudrVvuL3vuPRvuLTvcbmv/nJsuHivcPhv/rutebBvfb2vuDWv9fbvuDOv8nbv9/SvfHRudrUvO3yvcbmveTzudrVtebWvNX3vf7gstjTvcbmvuPRvO3yvuPZvuDOvcbmvuPRvPrjvMb2udrY">​</p>
@@ -23390,7 +23372,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="stjTvcbmvM34vO3ytebWvuLRvuLas8DUv9fpv/7zvcbmtebBvfb2vuDWv9fbv9/3v8nbv+rSsvHMudrUs93Rv/7zvcbmvO3yv8nbudrVuNrOuNrOstXzsszzv/7zvcbmv/zYvufPsuzfsuzQv937v/7xv/7zvcbmudrY">​</p>
@@ -24629,7 +24611,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="v/7zvcbmvuPRvuLQv9fpvN/9vcbmtebBv9ftvuLTv9fbvuPHvMbav+TWvuH/vfb2vuDWv9fbvuLZv8nbudrUvN/9vcbmvcHiveTzudrVvufGve/KuNrOuNrOstLXv9Lzv+bNv8/VvN/9vcbmvO3ytebWsvHivOnPvc/4vfHFvfPgstLds9rAs9vOvd77vf7Dv8rSstrWvdjgvN/9vcbmvuPRvcHiudrY">​</p>
@@ -25184,7 +25166,7 @@ h5{font-size:18.5px!important;}
     }catch(ex){}
   },true);
 })();
-</script></body></html>" loading="lazy"></iframe>
+</script></body></html>"></iframe>
     <div class="bridge bridge-outro">
       <div class="bridge-label">承先啟後</div>
       <p data-c="v9ftvuLTv9fbvuPHst3pvPf+v8bJvOHludrYvN/9vcbmvuPRvuLQvuHXvMbTvOnPvcbmudrbvufBvcbmtebWv+Tfv+TWv9ftveDWv+vPtebBvMb2v9ftv+3ov+rdstL2stH/svvWvuDgvcDeudrUsvzRv8bqudrVv+TEsuzfsuzQvuLTvML9v9LqvN/9vcbmvcHiveTzvuLavuH/sujxvuPRudrY">​</p>
